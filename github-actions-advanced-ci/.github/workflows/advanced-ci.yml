@@ -1,1 +1,44 @@
 
+name: Advanced CI with Quality & Security
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  quality-security-ci:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install Dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Code Quality - Linting (Flake8)
+      run: |
+        flake8 app.py
+
+    - name: Run Unit Tests
+      run: |
+        pytest
+
+    - name: Code Coverage
+      run: |
+        coverage run -m pytest
+        coverage report --fail-under=80
+
+    - name: Security Scan - Bandit
+      run: |
+        bandit -r .
+
+    - name: Quality Gate Passed
+      run: echo "All quality and security checks passed!"
